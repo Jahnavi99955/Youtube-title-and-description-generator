@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Title Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f9fafb;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .title-card {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .title-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.15);
+        }
+        
+        .copy-btn {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .title-card:hover .copy-btn {
+            opacity: 1;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="min-h-screen flex flex-col">
+        <!-- Hero Section -->
+        <header class="gradient-bg text-white py-16 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4">YouTube Title Generator</h1>
+                <p class="text-xl opacity-90 mb-8">Create catchy, SEO-optimized titles that boost your video's click-through rate</p>
+                
+                <div class="max-w-2xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="p-5">
+                        <div class="flex">
+                            <input 
+                                type="text" 
+                                id="keywordInput" 
+                                class="flex-grow px-4 py-3 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-gray-800" 
+                                placeholder="Enter video topic or keywords..."
+                            >
+                            <button 
+                                id="generateBtn" 
+                                class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-r-lg font-medium transition-colors"
+                            >
+                                Generate Titles
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-grow py-12 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto">
+                <!-- Loading State -->
+                <div id="loadingState" class="hidden text-center mb-12">
+                    <div class="inline-block p-4 bg-white rounded-full shadow-md">
+                        <svg class="animate-spin h-8 w-8 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </div>
+                    <p class="mt-4 text-gray-600">Generating creative title ideas...</p>
+                </div>
+
+                <!-- Results Section -->
+                <div id="resultsSection" class="hidden">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Generated Title Ideas</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="titlesContainer">
+                        <!-- Titles will be generated here -->
+                    </div>
+                </div>
+
+                <!-- Examples Section -->
+                <div class="mt-16">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Example Keywords</h2>
+                    
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <button class="example-btn px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors">
+                            iPhone unboxing
+                        </button>
+                        <button class="example-btn px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors">
+                            Cake recipe tutorial
+                        </button>
+                        <button class="example-btn px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors">
+                            Travel vlog Japan
+                        </button>
+                        <button class="example-btn px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors">
+                            Coding bootcamp review
+                        </button>
+                        <button class="example-btn px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition-colors">
+                            Fitness home workout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto text-center text-gray-600">
+                <p>© 2023 YouTube Title Generator. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const keywordInput = document.getElementById('keywordInput');
+            const generateBtn = document.getElementById('generateBtn');
+            const loadingState = document.getElementById('loadingState');
+            const resultsSection = document.getElementById('resultsSection');
+            const titlesContainer = document.getElementById('titlesContainer');
+            const exampleBtns = document.querySelectorAll('.example-btn');
+
+            // Generate titles function
+            function generateTitles(keyword) {
+                // Show loading state
+                loadingState.classList.remove('hidden');
+                resultsSection.classList.add('hidden');
+                titlesContainer.innerHTML = '';
+
+                // Simulate API call with timeout
+                setTimeout(() => {
+                    const titles = generateTitleSuggestions(keyword);
+                    displayTitles(titles);
+                    
+                    loadingState.classList.add('hidden');
+                    resultsSection.classList.remove('hidden');
+                }, 1000);
+            }
+
+            // Generate title suggestions
+            function generateTitleSuggestions(keyword) {
+                const prefixes = [
+                    "Ultimate Guide to",
+                    "How to",
+                    "The Truth About",
+                    "10 Tips for",
+                    "Secret Behind",
+                    "Beginner's Guide to",
+                    "Advanced Techniques for",
+                    "5 Reasons Why",
+                    "The Complete",
+                    "Step-by-Step"
+                ];
+
+                const suffixes = [
+                    "That Actually Work",
+                    "You Need to Know",
+                    "That Will Blow Your Mind",
+                    "Like a Pro",
+                    "In Under 5 Minutes",
+                    "That Changed My Life",
+                    "You've Never Seen Before",
+                    "For Maximum Results",
+                    "In 2023",
+                    "That Experts Swear By"
+                ];
+
+                const questions = [
+                    "Is This the Best Way to",
+                    "Are You Making These Mistakes with",
+                    "Why Does",
+                    "What No One Tells You About",
+                    "Can You Really"
+                ];
+
+                const titles = [];
+                
+                // Generate titles with prefixes + keyword + suffixes
+                for (let i = 0; i < 5; i++) {
+                    const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+                    const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
+                    titles.push(`${prefix} ${keyword} ${suffix}`);
+                }
+                
+                // Generate question titles
+                for (let i = 0; i < 3; i++) {
+                    const question = questions[Math.floor(Math.random() * questions.length)];
+                    titles.push(`${question} ${keyword}?`);
+                }
+                
+                // Generate "Number" titles
+                titles.push(`TOP 7 ${keyword.toUpperCase()} HACKS YOU NEED TO TRY`);
+                titles.push(`3 ${keyword.toUpperCase()} MYTHS DEBUNKED`);
+                
+                // Generate "vs" titles
+                titles.push(`${keyword} vs. THE COMPETITION - WHO WINS?`);
+                
+                return titles;
+            }
+
+            // Display generated titles
+            function displayTitles(titles) {
+                titlesContainer.innerHTML = '';
+                
+                titles.forEach(title => {
+                    const titleCard = document.createElement('div');
+                    titleCard.className = 'title-card bg-white rounded-xl p-6 flex flex-col hover:shadow-xl';
+                    
+                    const titleText = document.createElement('h3');
+                    titleText.className = 'text-lg font-medium text-gray-800 mb-4 flex-grow';
+                    titleText.textContent = title;
+                    
+                    const actionDiv = document.createElement('div');
+                    actionDiv.className = 'flex justify-between items-center pt-4 border-t border-gray-100';
+                    
+                    const likesDiv = document.createElement('div');
+                    likesDiv.className = 'flex items-center text-gray-500';
+                    
+                    const likeIcon = document.createElement('svg');
+                    likeIcon.className = 'w-5 h-5 mr-1';
+                    likeIcon.fill = 'none';
+                    likeIcon.stroke = 'currentColor';
+                    likeIcon.viewBox = '0 0 24 24';
+                    likeIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/>';
+                    
+                    likesDiv.appendChild(likeIcon);
+                    likesDiv.appendChild(document.createTextNode(' ' + Math.floor(Math.random() * 500) + ' likes'));
+                    
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'copy-btn text-purple-600 hover:text-purple-800 font-medium transition-colors flex items-center';
+                    copyBtn.innerHTML = `
+                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                        Copy
+                    `;
+                    
+                    copyBtn.addEventListener('click', () => {
+                        navigator.clipboard.writeText(title);
+                        
+                        // Show copied feedback
+                        const originalText = copyBtn.innerHTML;
+                        copyBtn.innerHTML = `
+                            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            Copied!
+                        `;
+                        
+                        setTimeout(() => {
+                            copyBtn.innerHTML = originalText;
+                        }, 2000);
+                    });
+                    
+                    actionDiv.appendChild(likesDiv);
+                    actionDiv.appendChild(copyBtn);
+                    
+                    titleCard.appendChild(titleText);
+                    titleCard.appendChild(actionDiv);
+                    
+                    titlesContainer.appendChild(titleCard);
+                });
+            }
+
+            // Event listeners
+            generateBtn.addEventListener('click', () => {
+                const keyword = keywordInput.value.trim();
+                if (keyword) {
+                    generateTitles(keyword);
+                } else {
+                    keywordInput.focus();
+                }
+            });
+
+            keywordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    generateBtn.click();
+                }
+            });
+
+            exampleBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    keywordInput.value = btn.textContent.trim();
+                    generateBtn.click();
+                });
+            });
+        });
+    </script>
+</body>
+</html>
